@@ -2,8 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d931fd0a-973f-4d12-957f-2fbc25cb2f22" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/TownTraversal.clj" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/Inference Engines/Astar-search(2a).clj" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/Inference Engines/breadth-search(2a).clj" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/Inference Engines/planner(1a).clj" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/TownTraversal.clj" afterPath="$PROJECT_DIR$/src/TownTraversal.clj" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,38 +20,8 @@
       <file leaf-file-name="TownTraversal.clj" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/TownTraversal.clj">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Astar-search(2a).clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Inference Engines/Astar-search(2a).clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="planner(1a).clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Inference Engines/planner(1a).clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="884">
-              <caret line="76" column="51" lean-forward="false" selection-start-line="76" selection-start-column="51" selection-end-line="76" selection-end-column="51" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="breadth-search(2a).clj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Inference Engines/breadth-search(2a).clj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="54">
+              <caret line="2" column="48" lean-forward="true" selection-start-line="2" selection-start-column="48" selection-end-line="2" selection-end-column="48" />
               <folding />
             </state>
           </provider>
@@ -131,10 +103,10 @@
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="preferences.editor" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="H:/Year 3/AI/ICA2/shrdlu-files" />
     <property name="cursive.last.file.extension.C\:/Users/07mct/Documents/GitHub/ICA2-PathFinding-InferenceEngines/ICA2-TeamM/src" value="clj" />
   </component>
-  <component name="ReplState" timestamp="1511912036260">{:repl-history {:ide [], :local [{:command &quot;(require '(\&quot;./Infererence Engines/Astart-search(2a).clj\&quot;))\n(require '(\&quot;./Infererence Engines/planner(1a).clj\&quot;))\n(require '(\&quot;./Infererence Engines/breadth-search(2a).clj\&quot;))&quot;, :offset 171, :ns &quot;user&quot;} {:command &quot;(breadth-search :supermarket :secondary-school 'town-map)&quot;, :offset 57, :ns &quot;user&quot;} {:command &quot;(require '(\&quot;/Infererence Engines/Astart-search(2a).clj\&quot;))&quot;, :offset 57, :ns &quot;user&quot;} {:command &quot;(require '(\&quot;x\&quot;))&quot;, :offset 16, :ns &quot;user&quot;} {:command &quot;(loaded-libs)&quot;, :offset 13, :ns &quot;user&quot;}], :remote []}}</component>
+  <component name="ReplState" timestamp="1511912368029">{:repl-history {:ide [], :local [{:command &quot;(require '(\&quot;./Infererence Engines/Astart-search(2a).clj\&quot;))\n(require '(\&quot;./Infererence Engines/planner(1a).clj\&quot;))\n(require '(\&quot;./Infererence Engines/breadth-search(2a).clj\&quot;))&quot;, :offset 171, :ns &quot;user&quot;} {:command &quot;(breadth-search :supermarket :secondary-school 'town-map)&quot;, :offset 57, :ns &quot;user&quot;} {:command &quot;(require '(\&quot;/Infererence Engines/Astart-search(2a).clj\&quot;))&quot;, :offset 57, :ns &quot;user&quot;} {:command &quot;(require '(\&quot;x\&quot;))&quot;, :offset 16, :ns &quot;user&quot;} {:command &quot;(loaded-libs)&quot;, :offset 13, :ns &quot;user&quot;}], :remote []}}</component>
   <component name="RunDashboard">
     <option name="ruleStates">
       <list>
@@ -344,8 +316,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/TownTraversal.clj">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="5" column="3" lean-forward="false" selection-start-line="5" selection-start-column="3" selection-end-line="5" selection-end-column="3" />
+        <state relative-caret-position="54">
+          <caret line="2" column="48" lean-forward="true" selection-start-line="2" selection-start-column="48" selection-end-line="2" selection-end-column="48" />
           <folding />
         </state>
       </provider>
