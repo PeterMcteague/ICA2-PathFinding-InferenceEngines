@@ -1,0 +1,50 @@
+
+;==============================================
+; an .nls file to improve the interface to
+; sock2 & make it easier to adapt
+;==============================================
+
+
+extensions [ sock2 ]
+
+
+globals [socket-debug-out]
+; socket-debug-out is (task print) by default
+; if you want output to go somewhere else change this after connecting
+; eg: set socket-debug-out (task print-output)
+
+
+
+to connect-to-localhost [#port]
+  set socket-debug-out (task [print ?])      
+  (run socket-debug-out (word "connecting on " #port))
+  sock2:connect-local #port
+  (run socket-debug-out "socket connected")
+end
+
+
+
+to socket-repl
+  let #cmd-str sock2:read
+  (run socket-debug-out (word "received: " #cmd-str))
+  run #cmd-str
+  tick
+end
+
+
+
+to flush-io
+  let #cmd-str sock2:read
+  (run socket-debug-out (word "received: " #cmd-str))
+  if (#cmd-str = "stop") [stop]
+  tick
+end
+
+
+
+to socket-write [#str]
+  (run socket-debug-out (word "writing: " #str))
+  sock2:write #str
+end
+
+
