@@ -1,125 +1,255 @@
 (
   ns TownTraversal
   (load-file "src/Inference Engines/Astar-search.clj")
-  (load-file "src/Inference Engines/planner.clj")
   (load-file "src/Inference Engines/breadth-search.clj")
+  (load-file "src/Inference Engines/depth_search.clj")
   )
-
-;;Planner
-
-(def ops
-  '{
-    :name move
-    :achieves (at ?agent ?y)
-    :pre ((agent ?agent) (at ?agent ?x) (connected ?x ?y))
-    :add ((at ?agent y))
-    :del ((at ?agent x))
-    :txt ((moved from ?x to ?y))
-    :cmd [move-to ?y]
-    }
-  )
-
-;; Need world states described to it
 
 ;; A-Star
 
-;; Breadth first (Currently doesn't take into account cost , will see if possible)
+(defn a*lmg [state]
+  (let [n (:state state)
+        c (:cost state)
+        ]
+    (case n
 
-(def town-map-keyless-costless
+      "primary-school"
+      (list
+        {:state "bakery", :cost (+ c 10)}
+        )
+
+      "gregs-house"
+      (list
+        {:state "bakery", :cost (+ c 5)}
+        )
+
+      "bakery"
+      (list
+        {:state "gregs-house", :cost (+ c 5)}
+        {:state "butchers", :cost (+ c 1)}
+        {:state "flower-shop", :cost (+ c 6)}
+        {:state "primary-school", :cost (+ c 10)}
+        )
+
+      "flower-shop"
+      (list
+        {:state "bakery", :cost (+ c 6)}
+        {:state "chinese-takeaway", :cost (+ c 8)}
+        {:state "hospital", :cost (+ c 10)}
+        )
+
+      "hospital"
+      (list
+        {:state "flower-shop", :cost (+ c 10)}
+        )
+
+      "butchers"
+      (list
+        {:state "bakery", :cost (+ c 1)}
+        {:state "chinese-takeaway", :cost (+ c 9)}
+        {:state "town-centre", :cost (+ c 5)}
+        )
+
+      "chinese-takeaway"
+      (list
+        {:state "flower-shop", :cost (+ c 8)}
+        {:state "butchers", :cost (+ c 9)}
+        {:state "the-club", :cost (+ c 6)}
+        )
+
+      "secondary-school"
+      (list
+        {:state "town-centre", :cost (+ c 1)}
+        {:state "supermarket", :cost (+ c 9)}
+        )
+
+      "town-centre"
+      (list
+        {:state "butchers", :cost (+ c 5)}
+        {:state "burger-town", :cost (+ c 10)}
+        {:state "fire-station", :cost (+ c 3 )}
+        {:state "secondary-school", :cost (+ c 1)}
+        {:state "supermarket", :cost (+ c 8)}
+        )
+
+      "the-club"
+      (list
+        {:state "chinese-takeaway", :cost (+ c 6)}
+        {:state "train-station", :cost (+ c 8)}
+        {:state "police-station", :cost (+ c 2)}
+        )
+
+      "train-station"
+      (list
+        {:state "the-club", :cost (+ c 10)}
+        )
+
+      "supermarket"
+      (list
+        {:state "secondary-school", :cost (+ c 9)}
+        {:state "town-centre", :cost (+ c 8)}
+        {:state "dock", :cost (+ c 8)}
+        )
+
+      "burger-town"
+      (list
+        {:state "town-centre", :cost (+ c 10)}
+        {:state "gym", :cost (+ c 9)}
+        )
+
+      "dock"
+      (list
+        {:state "supermarket", :cost (+ c 8)}
+        {:state "church", :cost (+ c 1)}
+        )
+
+      "church"
+      (list
+        {:state "dock", :cost (+ c 1)}
+        {:state "fire-station", :cost (+ c 7)}
+        )
+
+      "fire-station"
+      (list
+        {:state "church", :cost (+ c 7)}
+        {:state "gym", :cost (+ c 9)}
+        {:state "town-centre", :cost (+ c 3)}
+        )
+
+      "gym"
+      (list
+        {:state "fire-station", :cost (+ c 9)}
+        {:state "burger-town", :cost (+ c 9)}
+        {:state "police-station", :cost (+ c 2)}
+        )
+
+      "police-station"
+      (list
+        {:state "gym", :cost (+ c 2)}
+        {:state "the-club", :cost (+ c 2)}
+        )
+      )
+    ))
+
+(defn a*-traversal [a b]
+  (A*search {:state a, :cost 0} b a*lmg))
+
+(a*-traversal "gym" "primary-school")
+
+(defn a*lmg [state]
+  (let [n (:state state)
+        c (:cost state)
+        ]
+    (list
+      {:state (+ n 1), :cost (+ c 2)}
+      {:state (+ n 5), :cost (+ c 7)}
+      {:state (* n 2), :cost (+ c 1)}
+      )))
+
+(A*search {:state 0, :cost 0} (fn [x] (> x 20)) a*lmg)
+
+;; Breadth first , no cost
+
+(def breadth-state
   '{
     primary-school
-    {
-     bakery
-     }
+    (
+      bakery
+      )
     gregs-house
-    {
-     bakery
-     }
+    (
+      bakery
+      )
     bakery
-    {
-     gregs-house
-     butchers
-     flower-shop
-     primary-school
-     }
+    (
+      gregs-house
+      butchers
+      flower-shop
+      primary-school
+      )
     flower-shop
-    {
-     bakery
-     chinese-takeaway
-     hospital
-     }
+    (
+      bakery
+      chinese-takeaway
+      hospital
+      )
     hospital
-    {
-     flower-shop
-     }
+    (
+      flower-shop
+      )
     butchers
-    {
-     bakery
-     chinese-takeaway
-     town-centre
-     }
+    (
+      bakery
+      chinese-takeaway
+      town-centre
+      )
     chinese-takeaway
-    {
-     flower-shop
-     butchers
-     the-club
-     }
+    (
+      flower-shop
+      butchers
+      the-club
+      )
     secondary-school
-    {
-     town-centre
-     supermarket
-     }
+    (
+      town-centre
+      supermarket
+      )
     town-centre
-    {
-     butchers
-     burger-town
-     fire-station
-     secondary-school
-     supermarket
-     }
+    (
+      butchers
+      burger-town
+      fire-station
+      secondary-school
+      supermarket
+      )
     the-club
-    {
-     chinese-takeaway
-     train-station
-     police-station
-     }
+    (
+      chinese-takeaway
+      train-station
+      police-station
+      )
     supermarket
-    {
-     secondary-school
-     town-centre
-     dock
-     }
+    (
+      secondary-school
+      town-centre
+      dock
+      )
     burger-town
-    {
-     town-centre
-     gym
-     }
+    (
+      town-centre
+      gym
+      )
     dock
-    {
-     supermarket
-     church
-     }
+    (
+      supermarket
+      church
+      )
     church
-    {
-     dock
-     fire-station
-     }
+    (
+      dock
+      fire-station
+      )
     fire-station
-    {
-     church
-     gym
-     }
+    (
+      church
+      gym
+      town-centre
+      )
     gym
-    {
-     fire-station
-     burger-town
-     police-station
-     }
+    (
+      fire-station
+      burger-town
+      police-station
+      )
     police-station
-    {
-     gym
-     the-club
-     }
+    (
+      gym
+      the-club
+      )
     })
 
-(breadth-search 'police-station 'gym town-map-keyless-costless)
+(defn breadth-traversal [a b]
+  (breadth-search a b breadth-state))
+
+(breadth-traversal 'gym 'primary-school)
+
