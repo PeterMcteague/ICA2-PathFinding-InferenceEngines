@@ -3,6 +3,8 @@
   (:gen-class)
   (load-file "src/Inference Engines/Astar-search.clj")
   (load-file "src/Inference Engines/breadth-search.clj")
+  (load-file "src/Inference Engines/matcher.clj")
+  (load-file "src/Inference Engines/ops-search.clj")
   (load-file "src/Tools/socket.clj")
   )
 
@@ -240,6 +242,58 @@
 (defn breadth-traversal [a b]
   (breadth-search a b breadth-state))
 
+;;ops-search------------------------------------------------------------------------------------------------------------
+
+(def ops
+  '{move    {:pre ( (agent ?agent)
+                    (at ?agent ?p1)
+                    (connects ?p1 ?p2)
+                    )
+             :add ((at ?agent ?p2))
+             :del ((at ?agent ?p1))
+             :txt (move ?p1 to ?p2)
+             :cmd [move ?p2]
+             }
+    purchase {:pre ((agent ?agent)
+                   (has ?obj ?place)
+                   (at ?agent ?place)
+                   )
+            :add ((has ?obj ?agent))
+            :txt (purchase ?obj from ?place)
+            :cmd [purchase ?obj]
+            }
+    })
+
+(def ops-world-state
+  '#{(connects primary-school bakery)
+     (connects gregs-house bakery)
+     (connects bakery gregs-house) (connects bakery butchers) (connects bakery flower-shop) (connects bakery primary-school)
+     (connects flower-shop bakery) (connects flower-shop chinese-takeaway) (connects flower-shop hospital)
+     (connects hospital flower-shop)
+     (connects butchers bakery) (connects butchers chinese-takeaway) (connects butchers town-centre)
+     (connects chinese-takeaway flower-shop) (connects chinese-takeaway butchers) (connects chinese-takeaway the-club)
+     (connects secondary-school town-centre) (connects secondary-school supermarket)
+     (connects town-centre butchers) (connects town-centre burger-town) (connects town-centre fire-station) (connects town-centre secondary-school) (connects town-centre supermarket)
+     (connects the-club chinese-takeaway) (connects the-club train-station) (connects the-club police-station)
+     (connects supermarket secondary-school) (connects supermarket town-centre) (connects supermarket dock)
+     (connects burger-town town-centre) (connects burger-town gym)
+     (connects dock supermarket) (connects dock church)
+     (connects church dock) (connects church fire-station)
+     (connects fire-station church) (connects fire-station gym) (connects fire-station town-centre)
+     (connects gym fire-station) (connects gym burger-town) (connects gym police-station)
+     (connects police-station gym) (connects police-station the-club)
+
+     (has chinese-food chinese-takeaway)
+     })
+
+(defn create-start-state[a]
+  ('#{(agent 'R)
+      (at 'R a)
+      })
+  )
+
+(ops-search '#{(agent R) (at R bakery)} '((at R secondary-school) (has chinese-food R)) ops :world ops-world-state)
+
 ;;Functions with socket writing-----------------------------------------------------------------------------------------
 (def s25 (startup-server 2222)) ;;socket initialization
 
@@ -249,10 +303,14 @@
 (defn breadth-traversal-send [a b]
   ((socket-write (breadth-traversal a b))))
 
-;;----------------------------------------------------------------------------------------------------------------------
+;;Benchmarking functions------------------------------------------------------------------------------------------------
+(defn a*-traversal-bench[a b]
+  (with-progress-reporting (bench (a*-traversal a b) :verbose)))
+
+(defn breadth-traversal-bench[a b]
+  (with-progress-reporting (bench (breadth-traversal a b) :verbose)))
+
+;;Testing--------------------------------------------------------------------------------------------------------------
 
 (a*-traversal 'gym 'primary-school)
 (breadth-traversal 'gym 'primary-school)
-
-;;Benchmarking functions------------------------------------------------------------------------------------------------
-(bench (a*-traversal 'gym 'primary-school))
