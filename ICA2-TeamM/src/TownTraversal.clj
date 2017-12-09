@@ -1,11 +1,13 @@
 (
   ns TownTraversal
+  (:gen-class)
   (load-file "src/Inference Engines/Astar-search.clj")
   (load-file "src/Inference Engines/breadth-search.clj")
-  (load-file "src/Inference Engines/depth_search.clj")
+  (load-file "src/Tools/socket.clj")
+  (use 'criterium.core)
   )
 
-;; A-Star
+;; A-Star---------------------------------------------------------------------------------------------------------------
 
 (defn a*lmg [state]
   (let [n (:state state)
@@ -132,23 +134,11 @@
     ))
 
 (defn a*-traversal [a b]
-  (A*search {:state a, :cost 0} b a*lmg))
+  (A*search {:state (str a), :cost 0} (str b) a*lmg))
 
-(a*-traversal "gym" "primary-school")
+(a*-traversal 'gym 'primary-school)
 
-(defn a*lmg [state]
-  (let [n (:state state)
-        c (:cost state)
-        ]
-    (list
-      {:state (+ n 1), :cost (+ c 2)}
-      {:state (+ n 5), :cost (+ c 7)}
-      {:state (* n 2), :cost (+ c 1)}
-      )))
-
-(A*search {:state 0, :cost 0} (fn [x] (> x 20)) a*lmg)
-
-;; Breadth first , no cost
+;; Breadth first , no cost ---------------------------------------------------------------------------------------------
 
 (def breadth-state
   '{
@@ -253,3 +243,17 @@
 
 (breadth-traversal 'gym 'primary-school)
 
+;;Socket startup--------------------------------------------------------------------------------------------------------
+
+(def s25 (startup-server 2222))
+
+;;Test functions--------------------------------------------------------------------------------------------------------
+(defn a*-traversal-send [a b]
+  ((socket-write (map #(get % :state) (a*-traversal a b)))))
+
+(defn breadth-traversal-send [a b]
+  ((socket-write (breadth-traversal a b))))
+
+;;Benchmarking functions------------------------------------------------------------------------------------------------
+(a*-traversal-send 'gym 'primary-school)
+(bench (map #(get % :state) (a*-traversal 'gym 'primary-school)))
