@@ -1,70 +1,46 @@
-
-; matcher
-;===============================
-; v(0.0l)
-
-(ns ^{:doc "A Symbolic Pattern Matcher. See user guides and tutorials for detailed information."
-      :author "SCL"}
-  cgsx.tools.matcher)
-
-
+(ns ^{:doc "A fully-featured symbolic pattern matcher for Clojure."
+     :author "Simon Lynch"}
+ org.clojars.cognesence.matcher.core)
 
 ;--------------------------------------
-; globals, etc
+; globals, etc.
 ;--------------------------------------
 
 ; matcher var pseudo name-space
 
-(def
-  ^{:doc "Pseudo namespace for matcher variables. Variable mappings are lexically shadowed."}
-  mvars {})
+(def mvars {}) ; for outer environment - shadowed by lexical mvars
 
-(def
-  ^{:private true,
-    :doc "Set to 'mvars for convenience of macro definitions."
-    }
-  mns-nam 'mvars)
+(def ^:private mns-nam 'mvars)
 
 
 ;--------------------------------------
 ; helpers for matches
 ;--------------------------------------
 
-(def rep-?
-  ^{:private true,
-    :doc "a preset regular expression to detect symbols starting '?'"
-    }
-  (re-pattern #"\A\?(.+)"))
-
-
-(def rep-??
-  ^{:private true,
-    :doc "a preset regular expression to detect symbols starting '??'"
-    }
-  (re-pattern #"\A\?\?(.+)"))
-
+(def rep-?  ^:private (re-pattern #"\A\?(.+)"))    ; singletons
+(def rep-?? ^:private (re-pattern #"\A\?\?(.+)"))
 
 (defn- has-?-prefix
-  "a predicate to check if a symbol has '?' prefix (but not '??' prefix)"
+  ; checks if sym has \? prefix (but not \?? prefix)
   [sym]
   (and (re-find rep-? (str sym))
     (not (re-find rep-?? (str sym)))))
 
 
 (defn- has-??-prefix
-  "a predicate to check if a symbol has '??' prefix"
+  ; checks if sym has ?? prefix
   [sym]
   (re-find rep-?? (str sym)))
 
 
 (defn- strip-first
-  "strip first '?' char from a symbol/string, returning a symbol"
+  ; strips first "?" char from a symbol/str, returning a symbol
   [sym]
   (symbol ((re-find rep-? (str sym)) 1)))
 
 
 (defn- strip-first2
-  "strip first '??' chars from a symbol/string, returning a symbol"
+  ; strips first "??" chars from a symbol/str, returning a symbol
   [sym]
   (symbol ((re-find rep-?? (str sym)) 1)))
 
@@ -77,10 +53,8 @@
 (declare matcher:matches-)
 
 (defn- apply-all-predicates
-  "ripple a value through a a sequence of predicates failing if any return false/nil.
-  When predicates return true the value is unchanged, other non-false values replace
-  the existing value."
   [x fns]
+  ;(println "apply-all-predicates x=" x " fns=" fns)
   (if (empty? fns) x
     (if-let [y ((first fns) x)]
       (recur (if (= y true) x y) (rest fns))
@@ -89,16 +63,16 @@
 
 
 (defn- eval-fns
-  "takes a sequsence of (i) functions and/or (ii) textual forms describing functions,
-  returns a sequence of functions (textual forms are evaluated)"
+  ; this takes a list of either/mix of...
+  ; (i) functions
+  ; (ii) textual forms describing functions
+  ; any textual forms are evaluated to fns
   [fns]
   (map #(if (fn? %) % (eval %)) fns))
 
 
 
 (defn- absorb
-  "a core matcher function which binds multiple values for '??x' type variables.
-  Implements a mutually recursive depth-first search with matches"
   [vnam p d bind & {:keys [predicates]}]
   ; NB: p is the remaining part of pattern
   ; vnam is the name of the absorbing var
@@ -125,11 +99,8 @@
 
 
 (defn matcher:matches-
-  "The main matcher function. This function should not be called directly,
-  it is visible (ie: not private) so calls can be pushed into client code by macros.
-  The naming convention 'matcher:foo-' is used to half-hide forms which should only
-  be accessed by macros."
   [p d bind]
+  ;(println "matcher:matches-: p=" p ", d=" d ", bind=" bind)
   (cond
 
     ;__ tree down to level of symbols ____________
@@ -193,8 +164,6 @@
 
 
 (defmacro matches
-  "the most primitive matching form, matches a pattern against data.
-  This is a low-level form, it will not usually be called directly"
   ([p d] `(matcher:matches- ~p ~d (merge ~mns-nam {:pat ~p :it ~d})))
   ([p d bind] `(matcher:matches- ~p ~d (merge ~mns-nam {:pat ~p :it ~d} ~bind)))
   )
@@ -208,9 +177,7 @@
 
 
 (defn matcher:mout-
-  "build structured output from a mixture of literals and bound match variables.
-  The naming convention 'matcher:foo-' is used to half-hide forms which should only
-  be accessed by macros."
+  ; fill a pattern from mvars
   [x mvars]
   ;(println "** x=" x ", mvars=" mvars)
 
@@ -256,8 +223,6 @@
 
 
 (defmacro mout [lis]
-  "mout (matcher-out) is a convenience form to build structured output
-  from a mixture of literals and bound match variables"
   `(matcher:mout- ~lis ~mns-nam))
 
 
@@ -266,24 +231,17 @@
 ; macros: ?, mlet, with-mvars
 ;--------------------------------------
 
+;(def mns-nam 'mvars)
 
 (defmacro ?
-  "lookup named variable in matcher name-space"
+  ; lookup named variable in matcher name-space
   [x]
   `(~mns-nam '~x))
 
 
 (defmacro with-mvars
-  "add a map of variable names  and values to mvars then
-  evaluates the body in this context.
-
-  example...
-  user=> (with-mvars {'a (+ 2 3), 'b (- 3 4)}
-           (println mvars)
-           (with-mvars {'b 'bb, 'd 'xx, 'e 'yy}
-             (println mvars)))
-  {b -1, a 5}
-  {e yy, d xx, b bb, a 5}"
+  ; adds map of mvar names & values to mvars then
+  ; evaluates the body in this context
   [vmap & body]
   `(let [~mns-nam (merge ~mns-nam ~vmap)]
      ~@body
@@ -291,9 +249,18 @@
 
 
 
+;example...
+;
+;user=> (with-mvars {'a (+ 2 3), 'b (- 3 4)}
+;         (println mvars)
+;         (with-mvars {'b 'bb, 'd 'xx, 'e 'yy}
+;           (println mvars)))
+;{b -1, a 5}
+;{e yy, d xx, b bb, a 5}
+
+
 (defmacro mlet
-  "a matcher form of let, the most primitive form of matcher expression provided for general use.
-  eg: (mlet ['(?x ?y ?z) '(cat dog bat)] (? y)) => dog"
+  ; a matcher form of let
   [[p d] & body]
   `(if-let [mbind# (matches ~p ~d)]
      (let [~mns-nam mbind#]
@@ -307,8 +274,7 @@
 ;--------------------------------------
 
 (defmacro mif
-  "a matcher form of if with an optional 'else' clause
-  (mif [pattern data] then-clause else-clause)"
+  ; a matcher form of if
   ([[p d] then rest]
     `(if-let [~mns-nam (matches ~p ~d)]
        ~then ~rest))
@@ -317,23 +283,12 @@
        ~then))
   )
 
-
 ;--------------------------------------
 ; macros: mcond
 ;--------------------------------------
 
 
 (defmacro mcond
-  "mcond is the most general of the switching/specialisation forms,
-  it can be used to specify a series of pattern based rules as follows:
-
-  (defn calc [exp]
-    (mcond [exp]
-      ([?a minus ?b] :=> (- (? a) (? b)))
-      ([?a plus ?b]  :=> (+ (? a) (? b)))
-      ( ?_           :=> 'unknown )
-      ))
-  NB: use of :=> above is optional"
   [[lis] & forms]
   (let [lis lis ;; eval only once
         body (for [f forms]
@@ -343,6 +298,16 @@
     ))
 
 
+; example...
+;
+;(defn calc [exp]
+;  (mcond [exp]
+;    ((?a minus ?b) :=> (- (? a) (? b)))
+;    ((?a plus ?b)  :=> (+ (? a) (? b)))
+;    ( ?_           :=> 'unknown )
+;    ))
+
+
 
 ;--------------------------------------
 ; macros: mfind, mfind*
@@ -350,7 +315,6 @@
 
 
 (defmacro mfind
-  "find an occurance of a pattern in a collection of data"
   [[p data] & body]
   `(loop [d# (seq ~data)]
      (if (empty? d#) nil
@@ -360,9 +324,20 @@
          ))))
 
 
+; 150306
+; (if (empty? d#) d# => (if (empty? d#) nil
+;
+;(defmacro mfind
+;  [[p data] & body]
+;  `(loop [d# (seq ~data)]
+;     (if (empty? d#) d#
+;       (if-let [r# (mlet [~p (first d#)] ~@body)]
+;         r#
+;         (recur (rest d#))
+;         ))))
+
 
 (defmacro mfind*
-  "using multiple patterns, find a consistent match of all patterns in a collection of data"
   [[pats data] & body]
   (let [data data ;; eval only once
         pats pats ;; ditto
@@ -409,7 +384,6 @@
 
 (defn matcher:strict-map
   ; like map but not lazy
-  ; TODO: replace this with appropriate do- form
   [foo data]
   (if (empty? data) data
     (cons (foo (first data)) (matcher:strict-map foo (rest data)))
@@ -418,26 +392,25 @@
 
 (defn matcher:safely-concat [data]
   ; used in mfor* so its body can return symbolic forms
-  ; TODO: check this and replace
   (remove #(= % nil)
-    (if (every? seq? data)
-      (reduce concat data)
-      data)))
+  (if (every? seq? data)
+    (reduce concat data)
+    data)))
 
+;(defn matcher:safely-concat [data]
+;  ; used in mfor* so its body can return symbolic forms
+;  (remove #(= % nil) data))
+;    (if (every? seq? data)
+;      (reduce concat data)
+;      data)))
 
 (defmacro mfor
-  "find multiple occurances of a pattern in a collection of data.
-  The body is evaluated for each occurance found, mfor returns a sequence
-  of the results of these evaluations"
   [[p data] & body]
   `(remove #(= % nil)
      (matcher:strict-map (fn [d#] (mlet [~p d#] ~@body)) ~data)))
 
 
 (defmacro mfor*
-  "using multiple patterns, find all consistent matches of all patterns in a collection of data.
-  The body is evaluated for each consistent match found, mfor* returns a sequence
-  of the results of these evaluations"
   [[pats data] & body]
   (let [data data ;; eval only once
         pats pats ;; ditto
@@ -475,17 +448,6 @@
 
 
 (defmacro defmatch
-  "defmatch is similar in structure to mcond, wrapping an implicit mcond form with a
-  function definition, eg:
-
-  (defmatch math2 [x]
-    ((add ?y)  :=> (+ x (? y)))
-    ((subt ?y) :=> (- x (? y)))
-    ( ?_       :=> x))
-
-  (math2 '(add 7) 12) => 19
-  (math2 '(subt 7) 12) => 5
-  (math2 '(times 7) 12) => 12"
   [name params & forms]
   (let [exp (gensym 'exp)
         params (into [exp] params)
@@ -502,7 +464,6 @@
 ;  )
 
 (defmacro mfn
-  "defines an anonymous match form similar to defmatch"
   [params & forms]
   (let [exp (gensym 'exp)
         params (into [exp] params)
@@ -518,7 +479,6 @@
 ;--------------------------------------
 
 (defmacro massert
-  "massert offers a run-time assertion mechanism based on patterns"
   [[pat dat] text]
   `(if-not (matches ~pat ~dat) (throw (RuntimeException. ~text))))
 

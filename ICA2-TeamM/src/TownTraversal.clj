@@ -1,10 +1,10 @@
 (
   ns TownTraversal
   (:gen-class)
+  (:require [org.clojars.cognesence.matcher.core :refer :all])
+  (:require [org.clojars.cognesence.ops-search.core :refer :all])
   (load-file "src/Inference Engines/Astar-search.clj")
   (load-file "src/Inference Engines/breadth-search.clj")
-  (load-file "src/Inference Engines/matcher.clj")
-  (load-file "src/Inference Engines/ops-search.clj")
   (load-file "src/Tools/socket.clj")
   )
 
@@ -286,13 +286,13 @@
      (has chinese-food chinese-takeaway)
      })
 
-(defn create-start-state[a]
-  ('#{(agent 'R)
-      (at 'R a)
-      })
+(defn ops-search-traversal [a b]
+  (get (ops-search '#{(agent R) (at R a)} '((at R b)) ops :world ops-world-state) :txt)
   )
 
-(ops-search '#{(agent R) (at R bakery)} '((at R secondary-school) (has chinese-food R)) ops :world ops-world-state)
+(ops-search '#{(agent R) (at R gym)} '((at R secondary-school)) ops :world ops-world-state)
+(get (ops-search '#{(agent R) (at R gym)} '((at R secondary-school)) ops :world ops-world-state) :txt)
+(ops-search-traversal 'gym 'secondary-school)
 
 ;;Functions with socket writing-----------------------------------------------------------------------------------------
 (def s25 (startup-server 2222)) ;;socket initialization
