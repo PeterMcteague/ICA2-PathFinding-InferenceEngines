@@ -294,29 +294,41 @@
 (def s25 (startup-server 2222)) ;;socket initialization
 
 (defn a*-traversal-send [start end list]
-  (if (= (count list) 0)
+  (if (empty? list)
     (list)
     (do
-      (Thread/sleep 5000)
-      (socket-write (conj "move-to " (get (first list) :state)))
+      (println list)
+      (println (get (first list) :state))
+      (println "Sending" (str "move-to " (get (first list) :state)))
+      (println)
+      (Thread/sleep 1000)
+      (socket-write s25 (str "move-to " (get (first list) :state)))
       (a*-traversal-send start end (rest list)))
     ))
 
 (defn breadth-traversal-send [start end list]
-  (if (= (count list) 0)
+  (if (empty? list)
     (list)
     (do
+      (println list)
+      (println (get (first list) :state))
+      (println "Sending" (str "move-to " (get (first list) :state)))
+      (println)
       (Thread/sleep 5000)
-      (socket-write (conj "move-to " (first list)))
+      (socket-write s25 (str "move-to " (get (first list) :state)))
       (breadth-traversal-send start end (rest list)))
     ))
 
 (defn ops-search-traversal-send [start end text]
-  (if (= (count text) 0)
+  (if (empty? list)
     (conj start text end)
     (do
+      (println list)
+      (println (get (first list) :state))
+      (println "Sending" (str "move-to " (get (first list) :state)))
+      (println)
       (Thread/sleep 5000)
-      (socket-write (conj "move-to " (last (first text))))
+      (socket-write s25 (str "move-to " (get (first list) :state)))
       (ops-search-traversal-send start end (rest text)))
     ))
 
@@ -331,6 +343,8 @@
 (defn a*-traversal-send-wrapper [start end]
   (a*-traversal-send start end (a*-traversal start end))
   )
+
+(a*-traversal-send-wrapper 'gym 'primary-school)
 
 ;;Benchmarking functions------------------------------------------------------------------------------------------------
 (defn a*-traversal-bench[a b]

@@ -1,115 +1,36 @@
-to setup
-  clear-all                           ;; clear the screen
-  setup-world
-  reset-ticks
-end
 
-to draw-road [x y weight]
-  ask patch x y [ set plabel weight]
-  ask patch x y [ set pcolor black]
-end
-
-
-to draw-location [x y name]
-  ask patch x y [ set plabel name ]  ;;applies a label to the patch which is displayed
-  ask patch x y [ set pcolor blue ]
-end
-
-to setup-world
-  set-patch-size 45
-  ask patches [ set pcolor green ]       ;; set the background patches to green
-  ask patches [ set plabel-color white ]
-
-  draw-location 0 -6 "Primary School"
-  draw-location 2 -6 "Bakery"
-  draw-location 2 -8 "Gregs House"
-  draw-location 4 -6 "Butchers"
-  draw-location 2 -4 "Flower Shop"
-  draw-location 2 -2 "Hospital"
-  draw-location 4 -4 "Chinese Takeaway"
-  draw-location 4 0 "Train Station"
-  draw-location 6 -2 "The club"
-  draw-location 6 -6 "Town Centre"
-  draw-location 6 -8 "Secondary school"
-  draw-location 8 -4 "Burger Town"
-  draw-location 8 -2 "Police Station"
-  draw-location 10 -4 "Gym"
-
-  draw-location 10 -6 "Fire station"
-  draw-location 10 -8 "Church"
-  draw-location 8 -8 "Supermarket"
-  draw-location 10 -10 "Dock"
-
-  draw-road 1 -6 10 ;; road between primary school and bakery
-  draw-road 2 -7 5 ;; road between  and
-  draw-road 3 -6 1 ;; road between  and
-  draw-road 4 -5 9 ;; road between  and
-  draw-road 2 -5 6
-  draw-road 2 -3 10
-  draw-road 3 -4 8
-  draw-road 5 -3 6
-  draw-road 5 -6 5
-  draw-road 5 -1 8
-  draw-road 9 -3 2
-  draw-road 7 -2 10
-  draw-road 7 -5 2
-  draw-road 10 -5 9
-  draw-road 6 -7 1
-  draw-road 10 -7 7
-  draw-road 10 -9 1
-  draw-road 9 -9 8
-  draw-road 7 -7 8
-  draw-road 7 -8 9
-  draw-road 9 -4 9
-  draw-road  9
+__includes [ "sock2.nls" ]
 
 
 
-end
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-802
-603
--1
--1
-45.0
+649
+470
+16
+16
+13.0
 1
 10
 1
 1
 1
 0
-0
-0
 1
-0
-12
--12
-0
+1
+1
+-16
+16
+-16
+16
 0
 0
 1
 ticks
 30.0
-
-BUTTON
-26
-36
-90
-69
-Setup
-setup
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
 
 @#$#@#$#@
 ## WHAT IS IT?
@@ -452,8 +373,9 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
+
 @#$#@#$#@
-NetLogo 6.0.2
+NetLogo 5.0.4
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -461,14 +383,15 @@ NetLogo 6.0.2
 @#$#@#$#@
 default
 0.0
--0.2 0 0.0 1.0
+-0.2 0 1.0 0.0
 0.0 1 1.0 0.0
-0.2 0 0.0 1.0
+0.2 0 1.0 0.0
 link direction
 true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
+
 @#$#@#$#@
 0
 @#$#@#$#@

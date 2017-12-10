@@ -1,82 +1,14 @@
-globals [n]
-extensions[sock2]
+extensions[ sock2 ]
+globals [ n ]
 
-to setup
-  clear-all                           ;; clear the screen
-  setup-world
-  import-drawing "Map.PNG"
-  create-turtles 1 [set shape "Person" set color red]
+to make
   sock2:connect-local 2222
   set n 0
-  reset-ticks
 end
 
 to read
   let text sock2:read
   print (word "reading: " text)
-  if not (text = "")
-  [
-    if member? "move-to" text
-    [
-      move-to-node (remove "move-to " text)
-      ]
-  ]
-end
-
-to draw-location [x y name]
-  ask patch x y [ set plabel name ]  ;;applies a label to the patch which is displayed
-  ask patch x y [ set pcolor blue ]
-end
-
-to setup-world
-  set-patch-size 45
-  ask patches [ set pcolor green ]       ;; set the background patches to green
-  ask patches [ set plabel-color white ]
-
-  draw-location 0 -6 "primary-school"
-
-  draw-location 2 -6 "bakery"
-
-  draw-location 2 -8 "gregs-house"
-
-  draw-location 4 -6 "butchers"
-
-  draw-location 2 -4 "flower-shop"
-
-  draw-location 2 -2 "hospital"
-
-  draw-location 4 -4 "chinese-takeaway"
-
-  draw-location 4 0 "train-station"
-
-  draw-location 6 -2 "the-club"
-
-  draw-location 6 -6 "town-centre"
-
-  draw-location 6 -8 "secondary-school"
-
-  draw-location 8 -4 "burger-town"
-
-  draw-location 8 -2 "police-station"
-
-  draw-location 10 -4 "gym"
-
-  draw-location 10 -6 "fire-station"
-
-  draw-location 10 -8 "church"
-
-  draw-location 8 -8 "supermarket"
-
-  draw-location 10 -10 "dock"
-
-
-end
-
-to move-to-node [destination]
-  print destination
-  print (one-of patches with [plabel = destination])
-  ask turtle 0
-  [move-to (one-of patches with [plabel = destination])]
 end
 
 to send
@@ -85,28 +17,30 @@ to send
 end
 
 
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-805
-626
--1
--1
-45.0
+649
+470
+16
+16
+13.0
 1
 10
 1
 1
 1
 0
-0
-0
 1
-0
-12
--12
-0
+1
+1
+-16
+16
+-16
+16
 0
 0
 1
@@ -114,12 +48,12 @@ ticks
 30.0
 
 BUTTON
-26
-36
-90
-69
-Setup
-setup
+13
+14
+80
+47
+NIL
+make
 NIL
 1
 T
@@ -131,46 +65,29 @@ NIL
 1
 
 BUTTON
-27
+15
+60
 79
-91
-112
-move test
-move-to-node \"primary-school\"
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-101
-36
-164
-69
-NIL
-read
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-101
-78
-164
-111
+93
 NIL
 send
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+17
+107
+80
+140
+NIL
+read
 NIL
 1
 T
@@ -412,19 +329,12 @@ Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
 sheep
 false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
+0
+Rectangle -7500403 true true 151 225 180 285
+Rectangle -7500403 true true 47 225 75 285
+Rectangle -7500403 true true 15 75 210 225
+Circle -7500403 true true 135 75 150
+Circle -16777216 true false 165 76 116
 
 square
 false
@@ -509,13 +419,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
