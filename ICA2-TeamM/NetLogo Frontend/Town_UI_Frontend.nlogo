@@ -1,12 +1,23 @@
+globals [n Primary-School Bakery Gregs-House Butchers Flower-Shop Hospital Chinese-Takeaway Train-Station The-Club Town-Centre Secondary-School Burger-Town Police-Station Gym Fire-Station Church Supermarket Dock]
+extensions[sock2]
+
 to setup
   clear-all                           ;; clear the screen
   setup-world
+  import-drawing "Map.PNG"
+  create-turtles 1 [set shape "Person" set color red]
+  sock2:connect-local 2222
   reset-ticks
 end
 
-to draw-road [x y weight]
-  ask patch x y [ set plabel weight]
-  ask patch x y [ set pcolor black]
+to read
+  let text sock2:read
+  print (word "reading: " text)
+  if not text = ""
+   [
+    if member? "move-to" text
+    [move-to-node (remove "move-to " text)]
+    ]
 end
 
 
@@ -20,60 +31,99 @@ to setup-world
   ask patches [ set pcolor green ]       ;; set the background patches to green
   ask patches [ set plabel-color white ]
 
+  set Primary-School patches with [pxcor = 0 and pycor = -6]
   draw-location 0 -6 "Primary School"
+
+
+  set Bakery patches with [pxcor = 2 and pycor = -6]
   draw-location 2 -6 "Bakery"
+
+
+  set Gregs-House patches with [pxcor = 2 and pycor = -8]
   draw-location 2 -8 "Gregs House"
+
+
+  set Butchers patches with [pxcor = 4 and pycor = -6]
   draw-location 4 -6 "Butchers"
+
+
+  set Flower-Shop patches with [pxcor = 2 and pycor = -4]
   draw-location 2 -4 "Flower Shop"
+
+
+  set Hospital patches with [pxcor = 2 and pycor = -2]
   draw-location 2 -2 "Hospital"
+
+
+  set Chinese-Takeaway patches with [pxcor = 4 and pycor = -4]
   draw-location 4 -4 "Chinese Takeaway"
+
+
+  set Train-Station patches with [pxcor = 4 and pycor = 0]
   draw-location 4 0 "Train Station"
-  draw-location 6 -2 "The club"
+
+
+  set The-Club patches with [pxcor = 6 and pycor = -2]
+  draw-location 6 -2 "The-Club"
+
+
+  set Town-Centre patches with [pxcor = 6 and pycor = -6]
   draw-location 6 -6 "Town Centre"
+
+
+  set Secondary-School patches with [pxcor = 6 and pycor = -8]
   draw-location 6 -8 "Secondary school"
+
+
+  set Burger-Town patches with [pxcor = 8 and pycor = -4]
   draw-location 8 -4 "Burger Town"
+
+
+  set Police-Station patches with [pxcor = 8 and pycor = -2]
   draw-location 8 -2 "Police Station"
+
+
+  set Gym patches with [pxcor = 10 and pycor = -4]
   draw-location 10 -4 "Gym"
 
+
+  set Fire-Station patches with [pxcor = 10 and pycor = -6]
   draw-location 10 -6 "Fire station"
+
+
+  set Church patches with [pxcor = 10 and pycor = -8]
   draw-location 10 -8 "Church"
+
+
+  set Supermarket patches with [pxcor = 8 and pycor = -8]
   draw-location 8 -8 "Supermarket"
+
+
+  set Dock patches with [pxcor = 10 and pycor = -10]
   draw-location 10 -10 "Dock"
-
-  draw-road 1 -6 10 ;; road between primary school and bakery
-  draw-road 2 -7 5 ;; road between  and
-  draw-road 3 -6 1 ;; road between  and
-  draw-road 4 -5 9 ;; road between  and
-  draw-road 2 -5 6
-  draw-road 2 -3 10
-  draw-road 3 -4 8
-  draw-road 5 -3 6
-  draw-road 5 -6 5
-  draw-road 5 -1 8
-  draw-road 9 -3 2
-  draw-road 7 -2 10
-  draw-road 7 -5 2
-  draw-road 10 -5 9
-  draw-road 6 -7 1
-  draw-road 10 -7 7
-  draw-road 10 -9 1
-  draw-road 9 -9 8
-  draw-road 7 -7 8
-  draw-road 7 -8 9
-  draw-road 9 -4 9
-  draw-road 9 -6 ""
-  draw-road 8 -6 3
-  draw-road 7 -6 ""
-
 
 
 end
+
+to move-to-node [destination]
+  ask turtle 0
+  [move-to one-of destination]
+end
+
+to go
+  read
+end
+
+
+
+
+
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
 10
-802
-603
+805
+626
 -1
 -1
 45.0
@@ -104,6 +154,40 @@ BUTTON
 Setup
 setup
 NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+27
+79
+91
+112
+move test
+move-to-node primary-school
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+94
+36
+157
+69
+NIL
+go
+T
 1
 T
 OBSERVER
@@ -454,8 +538,9 @@ false
 0
 Polygon -7500403 true true 270 75 225 30 30 225 75 270
 Polygon -7500403 true true 30 75 75 30 270 225 225 270
+
 @#$#@#$#@
-NetLogo 6.0.2
+NetLogo 5.3.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
@@ -471,6 +556,7 @@ true
 0
 Line -7500403 true 150 150 90 180
 Line -7500403 true 150 150 210 180
+
 @#$#@#$#@
 0
 @#$#@#$#@
