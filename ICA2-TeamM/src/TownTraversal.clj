@@ -289,14 +289,48 @@
 (defn ops-search-traversal [start end]
   (ops-search (list '(agent R) (list 'at 'R start)) (list (list 'at 'R end)) ops :world ops-world-state))
 
+
 ;;Functions with socket writing-----------------------------------------------------------------------------------------
 (def s25 (startup-server 2222)) ;;socket initialization
 
-(defn a*-traversal-send [a b]
-  ((socket-write (map #(get % :state) (a*-traversal a b)))))
+(defn a*-traversal-send [start end list]
+  (if (= (count list) 0)
+    (list)
+    (do
+      (Thread/sleep 5000)
+      (socket-write (conj "move-to " (get (first list) :state)))
+      (a*-traversal-send start end (rest list)))
+    ))
 
-(defn breadth-traversal-send [a b]
-  ((socket-write (breadth-traversal a b))))
+(defn breadth-traversal-send [start end list]
+  (if (= (count list) 0)
+    (list)
+    (do
+      (Thread/sleep 5000)
+      (socket-write (conj "move-to " (first list)))
+      (breadth-traversal-send start end (rest list)))
+    ))
+
+(defn ops-search-traversal-send [start end text]
+  (if (= (count text) 0)
+    (conj start text end)
+    (do
+      (Thread/sleep 5000)
+      (socket-write (conj "move-to " (last (first text))))
+      (ops-search-traversal-send start end (rest text)))
+    ))
+
+(defn ops-search-traversal-send-wrapper [start end]
+  (ops-search-traversal-send start end (get (ops-search-traversal start end) :txt))
+  )
+
+(defn breadth-traversal-send-wrapper [start end]
+  (breadth-traversal-send start end (breadth-traversal start end))
+  )
+
+(defn a*-traversal-send-wrapper [start end]
+  (a*-traversal-send start end (a*-traversal start end))
+  )
 
 ;;Benchmarking functions------------------------------------------------------------------------------------------------
 (defn a*-traversal-bench[a b]
