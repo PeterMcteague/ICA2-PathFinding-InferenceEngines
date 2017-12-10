@@ -286,13 +286,8 @@
      (has chinese-food chinese-takeaway)
      })
 
-(defn ops-search-traversal [a b]
-  (get (ops-search '#{(agent R) (at R a)} '((at R b)) ops :world ops-world-state) :txt)
-  )
-
-(ops-search '#{(agent R) (at R gym)} '((at R secondary-school)) ops :world ops-world-state)
-(get (ops-search '#{(agent R) (at R gym)} '((at R secondary-school)) ops :world ops-world-state) :txt)
-(ops-search-traversal 'gym 'secondary-school)
+(defn ops-search-traversal [start end]
+  (ops-search (list '(agent R) (list 'at 'R start)) (list (list 'at 'R end)) ops :world ops-world-state))
 
 ;;Functions with socket writing-----------------------------------------------------------------------------------------
 (def s25 (startup-server 2222)) ;;socket initialization
@@ -314,3 +309,4 @@
 
 (a*-traversal 'gym 'primary-school)
 (breadth-traversal 'gym 'primary-school)
+(ops-search-traversal 'gym 'secondary-school)
