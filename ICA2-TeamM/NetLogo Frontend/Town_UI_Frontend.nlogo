@@ -22,7 +22,12 @@ to read
     if member? "move-to" text
     [
       move-to-node (remove "move-to " text)
-      ]
+    ]
+    if member? "purchase" text
+    [
+      print "Agent has purchased " 
+      print (remove "purchase " text)
+    ]
   ]
 end
 
