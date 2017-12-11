@@ -6,9 +6,12 @@ to setup
   setup-world
   import-drawing "Map.PNG"
   create-turtles 1 [set shape "Person" set color red]
+  reset-ticks
+end
+
+to connect
   sock2:connect-local 2222
   set n 0
-  reset-ticks
 end
 
 to read
@@ -84,7 +87,6 @@ to send
   set n (1 + n)
 end
 
-
 @#$#@#$#@
 GRAPHICS-WINDOW
 210
@@ -131,10 +133,10 @@ NIL
 1
 
 BUTTON
-27
-79
-91
-112
+103
+36
+173
+71
 move test
 move-to-node \"primary-school\"
 NIL
@@ -148,10 +150,10 @@ NIL
 1
 
 BUTTON
-101
-36
-164
-69
+65
+118
+141
+151
 NIL
 read
 T
@@ -165,11 +167,28 @@ NIL
 1
 
 BUTTON
-101
-78
-164
-111
+64
+80
+139
+113
 NIL
+connect
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+66
+157
+142
+190
+Test send
 send
 NIL
 1
