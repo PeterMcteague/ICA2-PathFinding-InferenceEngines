@@ -3,15 +3,19 @@
   (:gen-class)
   (:require [org.clojars.cognesence.matcher.core :refer :all])
   (:require [org.clojars.cognesence.ops-search.core :refer :all])
+  (:require [clojure.string :as str :refer [includes?]] :reload-all)
   (load-file "src/Inference Engines/Astar-search.clj")
   (load-file "src/Inference Engines/breadth-search.clj")
   (load-file "src/Tools/socket.clj")
   )
 
+;; For benchmarking
 (use 'criterium.core)
 
 ;; A-Star---------------------------------------------------------------------------------------------------------------
 
+;; A legal move generator for the search. :cost represents the cost of taking a path , and state the change of taking
+;; that path
 (defn a*lmg [state]
   (let [n (:state state)
         c (:cost state)
@@ -136,12 +140,14 @@
       )
     ))
 
-(defn a*-traversal [a b]
-  (A*search {:state (str a), :cost 0} (str b) a*lmg))
+;; A helper function taking start and end locations from the LMG and running the search on them
+(defn a*-traversal [start goal]
+  (A*search {:state (str start), :cost 0} (str goal) a*lmg))
 
-;; Breadth first , no cost ---------------------------------------------------------------------------------------------
+;; Breadth first--------------------------------------------------------------------------------------------------------
 
-(def breadth-state
+;; A legal move generator for the breadth first search showing states you can reach from your current state
+(def breadth-first-lmg
   '{
     primary-school
     (
@@ -239,11 +245,15 @@
       )
     })
 
-(defn breadth-traversal [a b]
-  (breadth-search a b breadth-state))
+;; A breadth first traversal helper function that runs breadth first search on the LMG taking arguments of the start
+;; and goal states.
+;; Example call (breadth-traversal 'gym 'primary-school)
+(defn breadth-traversal [start goal]
+  (breadth-search start goal breadth-first-lmg))
 
 ;;ops-search------------------------------------------------------------------------------------------------------------
 
+;; A list of operations that can be used by the ops-search for finding answers to the town traversal problem
 (def ops
   '{move    {:pre ( (agent ?agent)
                     (at ?agent ?p1)
@@ -264,6 +274,7 @@
             }
     })
 
+;; A world state representing the town in the town traversal problem
 (def ops-world-state
   '#{(connects primary-school bakery)
      (connects gregs-house bakery)
@@ -286,52 +297,100 @@
      (has chinese-food chinese-takeaway)
      })
 
-(defn ops-search-traversal [start end]
-  (ops-search (list '(agent R) (list 'at 'R start)) (list (list 'at 'R end)) ops :world ops-world-state))
+;; A helper function taking start and goal locations and running ops-search on them using the world state and operations
+;; above.
+;; Example call: (ops-search-traversal 'gym 'primary-school)
+(defn ops-search-traversal [start goal]
+  (ops-search (list '(agent R) (list 'at 'R start)) (list (list 'at 'R goal)) ops :world ops-world-state))
+
+;; A more advanced helper function for running ops-search, taking states as arguments instead.
+;; States are taken as lists of tuples. E.g. '((agent R) (at R gym))
+;; Example call: (ops-search-advanced (list '(agent R) '(at R gym)) (list '(at R gym) '(has chinese-food R)))
+(defn ops-search-advanced [start-conditions end-conditions]
+  (ops-search start-conditions end-conditions ops :world ops-world-state))
 
 
 ;;Functions with socket writing-----------------------------------------------------------------------------------------
-(def s25 (startup-server 2222)) ;;socket initialization
 
-(defn a*-traversal-send [start end list]
-  (if (empty? list)
-    (list)
+;; Starts a connection on local port 2222 for socket connectivity to another Java application.
+(def s25 (startup-server 2222))
+
+;; A function that takes the result of an a* search and sends commands through a socket 1 second at a time to show
+;; traversal.
+;; Example call:
+;; (a*-traversal-send
+;; 'gym
+;; 'primary-school
+;  ({:state "gym", :cost 0}
+;  {:state "fire-station", :cost 9}
+;  {:state "town-centre", :cost 12}
+;  {:state "butchers", :cost 17}
+;  {:state "bakery", :cost 18}
+;  {:state "primary-school", :cost 28}))
+(defn a*-traversal-send [start end text]
+  (if (empty? text)
+    ()
     (do
-      (println list)
-      (println (get (first list) :state))
-      (println "Sending" (str "move-to " (get (first list) :state)))
+      (println text)
+      (println (get (first text) :state))
+      (println "Sending" (str "move-to " (get (first text) :state)))
+      (println)
+      (socket-write s25 (str "move-to " (get (first text) :state)))
+      (Thread/sleep 1000)
+      (a*-traversal-send start end (rest text)))
+    ))
+
+;; A function that takes the result of a breadth first search and sends commands through a socket 1 second at a time to show
+;; traversal.
+;; Example call: (breadth-traversal-send 'gym 'fire-station '(gym fire-station))
+(defn breadth-traversal-send [start end text]
+  (if (empty? text)
+    ()
+    (do
+      (println text)
+      (println (first text))
+      (println "Sending" (str "move-to " (first text)))
+      (println)
+      (socket-write s25 (str "move-to " (first text)))
+      (Thread/sleep 1000)
+      (breadth-traversal-send start end (rest text)))
+    ))
+
+;; A function that takes the result of a ops-search and sends commands through a socket 1 second at a time to show
+;; traversal.
+;; Example call: (ops-search-traversal-send
+;; 'gym
+;; 'fire-station
+;; '((move gym to burger-town) (move burger-town to town-centre) (move town-centre to secondary-school)))
+(defn ops-search-traversal-send [start end text]
+  (if (empty? text)
+    ()
+    (do
+      (println text)
+      (println (first text))
+
+      (if (str/includes? (first text) (str "move " start))
+        (do
+          (println "Sending " (str "move-to " start))
+          (socket-write s25 (str "move-to " start))))
+
+      (if (str/includes? (first text) (str "move "))
+        (do
+          (println "Sending" (str "move-to " (last (first text))))
+          (socket-write s25 (str "move-to " (last (first text))))))
+
+      (if (str/includes? (first text) (str "purchase "))
+        (do
+          (println "Sending" (str "purchase " (last (first text))))
+          (socket-write s25 (str "purchase " (last (first text))))))
+
       (println)
       (Thread/sleep 1000)
-      (socket-write s25 (str "move-to " (get (first list) :state)))
-      (a*-traversal-send start end (rest list)))
-    ))
-
-(defn breadth-traversal-send [start end list]
-  (if (empty? list)
-    (list)
-    (do
-      (println list)
-      (println (get (first list) :state))
-      (println "Sending" (str "move-to " (get (first list) :state)))
-      (println)
-      (Thread/sleep 5000)
-      (socket-write s25 (str "move-to " (get (first list) :state)))
-      (breadth-traversal-send start end (rest list)))
-    ))
-
-(defn ops-search-traversal-send [start end text]
-  (if (empty? list)
-    (conj start text end)
-    (do
-      (println list)
-      (println (get (first list) :state))
-      (println "Sending" (str "move-to " (get (first list) :state)))
-      (println)
-      (Thread/sleep 5000)
-      (socket-write s25 (str "move-to " (get (first list) :state)))
       (ops-search-traversal-send start end (rest text)))
     ))
 
+;; Helper functions that call the above functions and just send start -> goal.------------------------------------------
+;; Example call (function 'gym 'town)-----------------------------------------------------------------------------------
 (defn ops-search-traversal-send-wrapper [start end]
   (ops-search-traversal-send start end (get (ops-search-traversal start end) :txt))
   )
@@ -344,17 +403,70 @@
   (a*-traversal-send start end (a*-traversal start end))
   )
 
+;; This one is for going from state -> state using the advanced ops-search
+(defn ops-search-advanced-send-wrapper [start-states end-states]
+  (ops-search-traversal-send start-states end-states (get (ops-search-advanced start-states end-states) :txt)))
+
+;; Example calls
 (a*-traversal-send-wrapper 'gym 'primary-school)
+(ops-search-traversal-send-wrapper 'gym 'primary-school)
+(ops-search-advanced-send-wrapper (list '(agent R) '(at R gym)) (list '(at R gym) '(has chinese-food R)))
+(breadth-traversal-send-wrapper 'gym 'primary-school)
 
 ;;Benchmarking functions------------------------------------------------------------------------------------------------
+
 (defn a*-traversal-bench[a b]
   (with-progress-reporting (bench (a*-traversal a b) :verbose)))
 
 (defn breadth-traversal-bench[a b]
   (with-progress-reporting (bench (breadth-traversal a b) :verbose)))
 
-;;Testing--------------------------------------------------------------------------------------------------------------
+(defn ops-traversal-bench[a b]
+  (with-progress-reporting (bench (ops-search-traversal a b) :verbose)))
 
-(a*-traversal 'gym 'primary-school)
-(breadth-traversal 'gym 'primary-school)
-(ops-search-traversal 'gym 'secondary-school)
+;;Some bench results----------------------------------------------------------------------------------------------------
+
+(breadth-traversal-bench 'gym 'primary-school)
+
+;Evaluation count : 717720 in 60 samples of 11962 calls.
+;Execution time sample mean : 83.667916 µs
+;Execution time mean : 83.676647 µs
+;Execution time sample std-deviation : 1.781365 µs
+;Execution time std-deviation : 1.809285 µs
+;Execution time lower quantile : 82.532246 µs ( 2.5%)
+;Execution time upper quantile : 89.190184 µs (97.5%)
+;Overhead used : 1.271845 ns
+;
+;Found 8 outliers in 60 samples (13.3333 %)
+;low-severe	 5 (8.3333 %)
+;low-mild	 3 (5.0000 %)
+;Variance from outliers : 9.4430 % Variance is slightly inflated by outliers
+
+(a*-traversal-bench 'gym 'primary-school)
+;Evaluation count : 728580 in 60 samples of 12143 calls.
+;Execution time sample mean : 82.197156 µs
+;Execution time mean : 82.198822 µs
+;Execution time sample std-deviation : 151.793173 ns
+;Execution time std-deviation : 156.290990 ns
+;Execution time lower quantile : 81.940021 µs ( 2.5%)
+;Execution time upper quantile : 82.521481 µs (97.5%)
+;Overhead used : 1.271845 ns
+;
+;Found 3 outliers in 60 samples (5.0000 %)
+;low-severe	 3 (5.0000 %)
+;Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
+
+(ops-traversal-bench 'gym 'primary-school)
+;Evaluation count : 2880 in 60 samples of 48 calls.
+;Execution time sample mean : 21.057407 ms
+;Execution time mean : 21.060160 ms
+;Execution time sample std-deviation : 253.456608 µs
+;Execution time std-deviation : 255.179251 µs
+;Execution time lower quantile : 20.956250 ms ( 2.5%)
+;Execution time upper quantile : 21.234292 ms (97.5%)
+;Overhead used : 1.271845 ns
+;
+;Found 3 outliers in 60 samples (5.0000 %)
+;low-severe	 1 (1.6667 %)
+;low-mild	 2 (3.3333 %)
+;Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
