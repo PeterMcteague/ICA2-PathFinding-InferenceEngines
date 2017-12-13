@@ -48,8 +48,11 @@
 (def word-morph-rules
   '(
      ;;--Word basis--
-     (from the                => from)
-     (to the                  => to)
+     (to the                  => )
+     (from the                => )
+     (the                     => )
+     (from                    => )
+     (to                      => )
      )
   )
 
@@ -111,11 +114,12 @@
 
 (defn runInput [sentence]
   (if (= (isMovementCommand? (morph sentence)) true)
-    (tt/ops-search-traversal-send-wrapper(first (rest sentence)) (first (rest (rest sentence))))
-    ("The input was not valid.")
+    (tt/ops-search-traversal-send-wrapper (first (rest sentence)) (first (rest (rest sentence))))
+    ('(The input was not valid.))
     ))
 
-;;(runInput '(move gym the-club))
+;;(runInput '(move from the butchers to the dock))
+;;(isMovementCommand? (morph '(move from the gym to the-club)))
 
 
 
