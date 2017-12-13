@@ -408,10 +408,10 @@
   (ops-search-traversal-send start-states end-states (get (ops-search-advanced start-states end-states) :txt)))
 
 ;; Example calls
-(a*-traversal-send-wrapper 'gym 'primary-school)
-(ops-search-traversal-send-wrapper 'gym 'primary-school)
-(ops-search-advanced-send-wrapper (list '(agent R) '(at R gym)) (list '(at R gym) '(has chinese-food R)))
-(breadth-traversal-send-wrapper 'gym 'primary-school)
+;(a*-traversal-send-wrapper 'gym 'primary-school)
+;(ops-search-traversal-send-wrapper 'gym 'primary-school)
+;(ops-search-advanced-send-wrapper (list '(agent R) '(at R gym)) (list '(at R gym) '(has chinese-food R)))
+;(breadth-traversal-send-wrapper 'gym 'primary-school)
 
 ;;Benchmarking functions------------------------------------------------------------------------------------------------
 
@@ -426,7 +426,7 @@
 
 ;;Some bench results----------------------------------------------------------------------------------------------------
 
-(breadth-traversal-bench 'gym 'primary-school)
+;(breadth-traversal-bench 'gym 'primary-school)
 
 ;Evaluation count : 717720 in 60 samples of 11962 calls.
 ;Execution time sample mean : 83.667916 µs
@@ -442,7 +442,7 @@
 ;low-mild	 3 (5.0000 %)
 ;Variance from outliers : 9.4430 % Variance is slightly inflated by outliers
 
-(a*-traversal-bench 'gym 'primary-school)
+;(a*-traversal-bench 'gym 'primary-school)
 ;Evaluation count : 728580 in 60 samples of 12143 calls.
 ;Execution time sample mean : 82.197156 µs
 ;Execution time mean : 82.198822 µs
@@ -456,7 +456,7 @@
 ;low-severe	 3 (5.0000 %)
 ;Variance from outliers : 1.6389 % Variance is slightly inflated by outliers
 
-(ops-traversal-bench 'gym 'primary-school)
+;(ops-traversal-bench 'gym 'primary-school)
 ;Evaluation count : 2880 in 60 samples of 48 calls.
 ;Execution time sample mean : 21.057407 ms
 ;Execution time mean : 21.060160 ms
