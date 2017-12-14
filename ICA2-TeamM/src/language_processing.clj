@@ -115,7 +115,7 @@
 (defn runInput [sentence]
   (if (= (isMovementCommand? (morph sentence)) true)
     (tt/ops-search-traversal-send-wrapper (first (rest sentence)) (first (rest (rest sentence))))
-    ('(The input was not valid.))
+    (str "The input was not valid.")
     ))
 
 ;;(runInput '(move from the butchers to the dock))
